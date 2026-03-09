@@ -89,12 +89,16 @@ export const login = async (req, res) => {
       });
     }
 
-    const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "7d",
-    });
+    const token = await jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "7d",
+      },
+    );
     return res
       .status(200)
-      .cookie("token",token, {
+      .cookie("token", token, {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "strict",
@@ -110,5 +114,22 @@ export const login = async (req, res) => {
       success: false,
       message: "Failed to Login",
     });
+  }
+};
+
+// @desc    Logout a user-----------------------------------------------------------------------------
+// @route   GET /api/user/logout
+// @access  Public
+export const logout = async (_, res) => {
+  try {
+    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+      message: "Logged out successfully.",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
