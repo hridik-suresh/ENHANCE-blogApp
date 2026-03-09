@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 
 //@desc    Register a new user-----------------------------------------------------------------------------
@@ -55,6 +56,59 @@ export const register = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to register",
+    });
+  }
+};
+
+// @desc    Login a user-----------------------------------------------------------------------------
+// @route   POST /api/user/login
+// @access  Public
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email && !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect email or password",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Credentials",
+      });
+    }
+
+    const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "7d",
+    });
+    return res
+      .status(200)
+      .cookie("token",token, {
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: "strict",
+      })
+      .json({
+        success: true,
+        message: `Welcome back ${user.firstName}`,
+        user,
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to Login",
     });
   }
 };
