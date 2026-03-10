@@ -1,9 +1,12 @@
-import { Button } from "../components/ui/button"
+import Hero from "../components/Hero.jsx";
+import { Button } from "../components/ui/button";
 
 const Home = () => {
   return (
-    <div>Home<Button>Click</Button></div>
-  )
-}
+    <div>
+      <Hero />
+    </div>
+  );
+};
 
-export default Home
+export default Home;
