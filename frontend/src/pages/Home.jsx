@@ -3,7 +3,7 @@ import { Button } from "../components/ui/button";
 
 const Home = () => {
   return (
-    <div>
+    <div className="pt-20">
       <Hero />
     </div>
   );
